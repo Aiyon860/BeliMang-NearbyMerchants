@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool, text
 
 from alembic import context
-from app import models
+from app.merchants import models
+from app.users import models
 from app.database import DATABASE_URL, Base
 
 load_dotenv()

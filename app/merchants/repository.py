@@ -1,16 +1,18 @@
 from typing import Optional
+from fastapi.param_functions import Depends
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import functions as geofunc
 
-from models import Merchant, Item
-from enums import MerchantCategoryEnum
+from app.dependencies import get_session
+
+from .models import Merchant, Item
+from .enums import MerchantCategoryEnum
 
 
 class MerchantRepository:
     @staticmethod
     async def get_nearby_merchants(
-        session: AsyncSession,
         lat: float,
         long: float,
         merchantId: Optional[str],
@@ -18,6 +20,7 @@ class MerchantRepository:
         name: Optional[str],
         limit: int,
         offset: int,
+        session: AsyncSession = Depends(get_session),
     ):
         stmt = select(Merchant)
 

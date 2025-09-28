@@ -1,9 +1,9 @@
 from typing import Optional
 from fastapi import HTTPException
 
-from repository import MerchantRepository
-from enums import MerchantCategoryEnum
-from schemas import (
+from .repository import MerchantRepository
+from .enums import MerchantCategoryEnum
+from .schemas import (
     DetailMerchantResponse,
     LocationSchema,
     MerchantResponse,

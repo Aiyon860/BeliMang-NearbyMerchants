@@ -4,8 +4,9 @@ import subprocess
 
 from fastapi import FastAPI
 
-from config import settings
-from merchants.router import router as merchant_router
+from app.config import settings
+from app.merchants.router import router as merchant_router
+from app.users.router import router as user_router
 
 
 @asynccontextmanager
@@ -40,6 +41,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(merchant_router)
+app.include_router(user_router)
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 

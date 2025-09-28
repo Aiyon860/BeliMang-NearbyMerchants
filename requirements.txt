@@ -8,3 +8,5 @@ psycopg2-binary
 pydantic
 pydantic_settings
 python-dotenv
+passlib[bcrypt]
+python-jose[cryptography]

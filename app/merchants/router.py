@@ -2,9 +2,9 @@ from typing import Optional
 from fastapi import Depends, Path, Query, APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from dependencies import get_session
-from schemas import NearbyResponse
-from service import MerchantService
+from app.dependencies import get_session
+from .schemas import NearbyResponse
+from .service import MerchantService
 
 router = APIRouter(prefix="/api/v1", tags=["merchants"])
 
