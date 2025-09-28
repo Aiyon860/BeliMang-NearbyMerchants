@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 from geoalchemy2 import WKTElement
 from sqlalchemy import text
 
-from app.database import asyncSessionLocal
-from app.enums import MerchantCategoryEnum
-from app.models import Item, Merchant
+from database import asyncSessionLocal
+from merchants.enums import MerchantCategoryEnum
+from merchants.models import Item, Merchant
 
 load_dotenv()
 

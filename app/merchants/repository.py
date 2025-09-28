@@ -3,8 +3,8 @@ from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import functions as geofunc
 
-from app.models import Merchant, Item
-from app.enums import MerchantCategoryEnum
+from models import Merchant, Item
+from enums import MerchantCategoryEnum
 
 
 class MerchantRepository:

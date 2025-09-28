@@ -4,8 +4,8 @@ import subprocess
 
 from fastapi import FastAPI
 
-from app.config import settings
-from app.router import router as merchant_router
+from config import settings
+from merchants.router import router as merchant_router
 
 
 @asynccontextmanager

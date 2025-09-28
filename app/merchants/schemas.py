@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import List
-from app.enums import MerchantCategoryEnum
+from enums import MerchantCategoryEnum
 
 
 class LocationSchema(BaseModel):

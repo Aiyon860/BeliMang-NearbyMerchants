@@ -16,7 +16,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from app.database import Base
-from app.enums import MerchantCategoryEnum
+from enums import MerchantCategoryEnum
 
 
 class Merchant(Base):
