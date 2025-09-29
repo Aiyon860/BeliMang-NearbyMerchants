@@ -1,4 +1,5 @@
-from typing import Optional
+from collections.abc import Iterable
+from typing import Dict, Optional
 
 from fastapi.param_functions import Depends
 from geoalchemy2 import functions as geofunc
@@ -51,3 +52,31 @@ class MerchantRepository:
 
         result = await session.execute(stmt)
         return result.scalars().unique().all()
+
+    @staticmethod
+    async def get_merchant_by_id(
+        session: AsyncSession, merchant_id: str
+    ) -> Merchant | None:
+        stmt = select(Merchant).where(Merchant.id == merchant_id)
+        result = await session.execute(stmt)
+        return result.scalars().first()
+
+    @staticmethod
+    async def get_merchants_by_ids(
+        session: AsyncSession, merchant_ids: Iterable[str]
+    ) -> Dict[str, Merchant]:
+        stmt = select(Merchant).where(Merchant.id.in_(merchant_ids))
+        result = await session.execute(stmt)
+        merchants = result.scalars().all()
+        return {str(merchant.id): merchant for merchant in merchants}
+
+    @staticmethod
+    async def get_items_by_merchant_and_item_ids(
+        session: AsyncSession, merchant_id: str, item_ids: Iterable[str]
+    ) -> Dict[str, Item]:
+        stmt = select(Item).where(
+            Item.merchant_id == merchant_id, Item.id.in_(item_ids)
+        )
+        result = await session.execute(stmt)
+        items = result.scalars().all()
+        return {str(item.id): item for item in items}

@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.merchants.models import Item, Merchant
+from app.merchants.repository import MerchantRepository
 
 from .repository import EstimateRepository
 from .schemas import EstimateRequest, EstimateResponse
@@ -123,7 +124,7 @@ class EstimateService:
 
         # Get merchants and items
         merchant_ids = [o.merchantId for o in body.orders]
-        merchants: Dict[str, Merchant] = await EstimateRepository.get_merchants_by_ids(
+        merchants: Dict[str, Merchant] = await MerchantRepository.get_merchants_by_ids(
             session, merchant_ids
         )
         # 404 if any merchant not found
@@ -139,7 +140,7 @@ class EstimateService:
         for o in body.orders:
             items_map: Dict[
                 str, Item
-            ] = await EstimateRepository.get_items_by_merchant_and_item_ids(
+            ] = await MerchantRepository.get_items_by_merchant_and_item_ids(
                 session, o.merchantId, [it.itemId for it in o.items]
             )
             missing_items = [it.itemId for it in o.items if it.itemId not in items_map]
@@ -194,11 +195,37 @@ class EstimateService:
         # Estimate time in minutes (round to integer)
         est_minutes = max(1, round((total_km / COURIER_SPEED_KMH) * 60.0))
 
+        # Create estimate row
         estimate_id = await EstimateRepository.save_estimate(
             session,
             total_price=total_price,
             est_minutes=est_minutes,
         )
+
+        # Create estimate items rows
+        rows = []
+        for o in body.orders:
+            items_map: Dict[
+                str, Item
+            ] = await MerchantRepository.get_items_by_merchant_and_item_ids(
+                session, o.merchantId, [it.itemId for it in o.items]
+            )
+            for it in o.items:
+                item: Item = items_map[it.itemId]
+                rows.append(
+                    {
+                        "estimate_id": estimate_id,
+                        "item_id": item.id,
+                        "merchant_id": item.merchant_id,
+                        "quantity": it.quantity,
+                        "unit_price": item.price,
+                        "item_name": item.name,
+                        "product_category": item.product_category,
+                        "image_url": item.image_url,
+                    }
+                )
+        await EstimateRepository.bulk_insert_estimate_items(session, rows)
+        await session.commit()
 
         return EstimateResponse(
             totalPrice=total_price,

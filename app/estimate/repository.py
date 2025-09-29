@@ -1,35 +1,15 @@
 import uuid
-from typing import Dict, Iterable
+from typing import Dict, List
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import insert
+from sqlalchemy.sql.expression import select
 
-from app.merchants.models import Item, Merchant
-
-from .models import Estimate
+from .models import Estimate, EstimateItem
 
 
 class EstimateRepository:
-    @staticmethod
-    async def get_merchants_by_ids(
-        session: AsyncSession, merchant_ids: Iterable[str]
-    ) -> Dict[str, Merchant]:
-        stmt = select(Merchant).where(Merchant.id.in_(merchant_ids))
-        result = await session.execute(stmt)
-        merchants = result.scalars().all()
-        return {str(merchant.id): merchant for merchant in merchants}
-
-    @staticmethod
-    async def get_items_by_merchant_and_item_ids(
-        session: AsyncSession, merchant_id: str, item_ids: Iterable[str]
-    ) -> Dict[str, Item]:
-        stmt = select(Item).where(
-            Item.merchant_id == merchant_id, Item.id.in_(item_ids)
-        )
-        result = await session.execute(stmt)
-        items = result.scalars().all()
-        return {str(item.id): item for item in items}
-
     @staticmethod
     async def save_estimate(
         session: AsyncSession, total_price: int, est_minutes: int
@@ -37,5 +17,26 @@ class EstimateRepository:
         eid = uuid.uuid4()
         est = Estimate(id=eid, total_price=total_price, est_minutes=est_minutes)
         session.add(est)
-        await session.commit()
+        await session.flush()  # Ensure both estimate and its items are saved
         return str(eid)
+
+    @staticmethod
+    async def bulk_insert_estimate_items(
+        session: AsyncSession, rows: List[Dict]
+    ) -> None:
+        await session.execute(insert(EstimateItem), rows)
+
+    @staticmethod
+    async def get_estimate_with_items(
+        session: AsyncSession,
+        estimate_id: str,
+    ):
+        q = (
+            select(Estimate)
+            .where(Estimate.id == estimate_id)
+            .options(
+                selectinload(Estimate.items)
+            )  # relationship Estimate.items -> list[EstimateItem]
+        )
+        res = await session.execute(q)
+        return res.scalars().first()

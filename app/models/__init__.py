@@ -1,10 +1,9 @@
-from sqlalchemy.orm import configure_mappers
+from sqlalchemy.orm import configure_mappers, relationship
 
-from app.estimate.models import Estimate
+from app.estimate.models import Estimate, EstimateItem
 from app.merchants.models import Item, Merchant
-from app.orders.models import Order
+from app.orders.models import Order, OrderItem
 from app.users.models import User
-from sqlalchemy.orm import relationship
 
 if not hasattr(User, "orders"):
     User.orders = relationship("Order", back_populates="user", lazy="selectin")
@@ -15,4 +14,4 @@ if not hasattr(Order, "estimate"):
 
 configure_mappers()
 
-__all__ = ["User", "Order", "Estimate", "Merchant", "Item"]
+__all__ = ["User", "Order", "Estimate", "Merchant", "Item", "OrderItem", "EstimateItem"]

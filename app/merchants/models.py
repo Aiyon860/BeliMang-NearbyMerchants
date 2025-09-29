@@ -5,6 +5,7 @@ from typing import List
 from geoalchemy2 import Geography
 from sqlalchemy import (
     UUID,
+    CheckConstraint,
     DateTime,
     Enum,
     Float,
@@ -56,14 +57,19 @@ class Item(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    product_category: Mapped[str] = mapped_column(
+    product_category: Mapped[ItemProductCategoryEnum] = mapped_column(
         Enum(
             ItemProductCategoryEnum,
             name=ItemProductCategoryEnum.__pg_name__,
         ),
         nullable=False,
     )
-    price: Mapped[int] = mapped_column(Integer, nullable=False)
+    price: Mapped[int] = mapped_column(
+        Integer, CheckConstraint("price >= 1"), nullable=False
+    )
+    quantity: Mapped[int] = mapped_column(
+        Integer, CheckConstraint("quantity >= 0"), nullable=False
+    )
     image_url: Mapped[str] = mapped_column(String(1024), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

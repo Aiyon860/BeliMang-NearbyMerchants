@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import HTTPException
+from pydantic import HttpUrl
 
 from .enums import MerchantCategoryEnum
 from .repository import MerchantRepository
@@ -46,7 +47,15 @@ class MerchantService:
         data = []
         for m in merchants:
             items = [
-                ItemResponse(itemId=str(i.id), name=i.name, price=i.price)
+                ItemResponse(
+                    itemId=str(i.id),
+                    name=i.name,
+                    productCategory=i.product_category,
+                    imageUrl=HttpUrl(i.image_url),
+                    price=i.price,
+                    quantity=i.quantity,
+                    createdAt=i.created_at.isoformat(),
+                )
                 for i in m.items
             ]
 
@@ -56,9 +65,9 @@ class MerchantService:
                         merchantId=str(m.id),
                         name=m.name,
                         merchantCategory=m.merchant_category,
-                        imageUrl=m.image_url,
+                        imageUrl=HttpUrl(m.image_url),
                         location=LocationSchema(lat=m.latitude, long=m.longitude),
-                        createdAt=m.created_at,
+                        createdAt=m.created_at.isoformat(),
                     ),
                     items=items,
                 )

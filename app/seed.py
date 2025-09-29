@@ -138,28 +138,84 @@ MERCHANTS = [
 ]
 
 ITEMS = {
-    "11111111-1111-1111-1111-111111111111": [("Nasi Campur", 18000), ("Es Teh", 5000)],
+    "11111111-1111-1111-1111-111111111111": [
+        (
+            "Nasi Campur",
+            "Food",
+            18000,
+            "https://cdn.example.com/images/nasi_campur.jpg",
+        ),
+        ("Es Teh", "Beverage", 5000, "https://cdn.example.com/images/es_teh.jpg"),
+    ],
     "22222222-2222-2222-2222-222222222222": [
-        ("Bakmi Special", 25000),
-        ("Pangsit", 8000),
+        (
+            "Bakmi Special",
+            "Food",
+            25000,
+            "https://cdn.example.com/images/bakmi_special.jpg",
+        ),
+        ("Pangsit", "Food", 8000, "https://cdn.example.com/images/pangsit.jpg"),
     ],
     "33333333-3333-3333-3333-333333333333": [
-        ("Ayam Bakar", 35000),
-        ("Sayur Asem", 15000),
+        ("Ayam Bakar", "Food", 35000, "https://cdn.example.com/images/ayam_bakar.jpg"),
+        ("Sayur Asem", "Food", 15000, "https://cdn.example.com/images/sayur_asem.jpg"),
     ],
-    "44444444-4444-4444-4444-444444444444": [("Air Mineral", 3000), ("Roti", 7000)],
-    "55555555-5555-5555-5555-555555555555": [("Soto", 20000), ("Kerupuk", 3000)],
-    "66666666-6666-6666-6666-666666666666": [("T-Shirt", 90000), ("Sticker", 15000)],
+    "44444444-4444-4444-4444-444444444444": [
+        (
+            "Air Mineral",
+            "Beverage",
+            3000,
+            "https://cdn.example.com/images/air_mineral.jpg",
+        ),
+        ("Roti", "Snack", 7000, "https://cdn.example.com/images/roti.jpg"),
+    ],
+    "55555555-5555-5555-5555-555555555555": [
+        ("Soto", "Food", 20000, "https://cdn.example.com/images/soto.jpg"),
+        ("Kerupuk", "Snack", 3000, "https://cdn.example.com/images/kerupuk.jpg"),
+    ],
+    "66666666-6666-6666-6666-666666666666": [
+        ("T-Shirt", "Additions", 90000, "https://cdn.example.com/images/tshirt.jpg"),
+        ("Sticker", "Additions", 15000, "https://cdn.example.com/images/sticker.jpg"),
+    ],
     "77777777-7777-7777-7777-777777777777": [
-        ("Americano", 25000),
-        ("Cappuccino", 30000),
+        (
+            "Americano",
+            "Beverage",
+            25000,
+            "https://cdn.example.com/images/americano.jpg",
+        ),
+        (
+            "Cappuccino",
+            "Beverage",
+            30000,
+            "https://cdn.example.com/images/cappuccino.jpg",
+        ),
     ],
     "88888888-8888-8888-8888-888888888888": [
-        ("Nasi Goreng", 20000),
-        ("Teh Manis", 5000),
+        (
+            "Nasi Goreng",
+            "Food",
+            20000,
+            "https://cdn.example.com/images/nasi_goreng.jpg",
+        ),
+        ("Teh Manis", "Beverage", 5000, "https://cdn.example.com/images/teh_manis.jpg"),
     ],
-    "99999999-9999-9999-9999-999999999999": [("Roti Bakar Coklat", 12000)],
-    "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa": [("Indomie Goreng", 12000)],
+    "99999999-9999-9999-9999-999999999999": [
+        (
+            "Roti Bakar Coklat",
+            "Snack",
+            12000,
+            "https://cdn.example.com/images/roti_bakar_coklat.jpg",
+        )
+    ],
+    "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa": [
+        (
+            "Indomie Goreng",
+            "Food",
+            12000,
+            "https://cdn.example.com/images/indomie_goreng.jpg",
+        )
+    ],
 }
 
 
@@ -211,12 +267,14 @@ async def seed():
 
         # Insert items
         for mid, arr in ITEMS.items():
-            for name, price in arr:
+            for name, pc_enum, price, image_url in arr:
                 it = Item(
                     id=uuid.uuid4(),
                     merchant_id=uuid.UUID(mid),
                     name=name,
+                    product_category=pc_enum,
                     price=price,
+                    image_url=image_url,
                 )
                 session.add(it)
         await session.commit()

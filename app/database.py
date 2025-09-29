@@ -12,6 +12,9 @@ DATABASE_URL = os.getenv(
 
 engine = create_async_engine(DATABASE_URL, echo=True, future=True)
 asyncSessionLocal = async_sessionmaker(
-    engine, class_=AsyncSession, autoflush=True, autocommit=False
+    engine,
+    class_=AsyncSession,
+    autoflush=False,
+    expire_on_commit=False,
 )
 Base = declarative_base()

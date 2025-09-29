@@ -1,9 +1,8 @@
-from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, HttpUrl
 
-from .enums import MerchantCategoryEnum
+from .enums import ItemProductCategoryEnum, MerchantCategoryEnum
 
 
 class LocationSchema(BaseModel):
@@ -12,18 +11,22 @@ class LocationSchema(BaseModel):
 
 
 class ItemResponse(BaseModel):
-    itemId: str = Field(..., alias="itemId")
+    itemId: str
     name: str
+    productCategory: ItemProductCategoryEnum
     price: int
+    quantity: int
+    imageUrl: HttpUrl
+    createdAt: str
 
 
 class DetailMerchantResponse(BaseModel):
-    merchantId: str = Field(..., alias="merchantId")
+    merchantId: str
     name: str
     merchantCategory: MerchantCategoryEnum
-    imageUrl: str
+    imageUrl: HttpUrl
     location: LocationSchema
-    createdAt: datetime
+    createdAt: str
 
 
 class MerchantResponse(BaseModel):
