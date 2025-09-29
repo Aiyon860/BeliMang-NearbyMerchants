@@ -1,9 +1,11 @@
-from contextlib import asynccontextmanager
 import os
 import subprocess
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+import app.models
+from app.auth.router import router as auth_router
 from app.config import settings
 from app.merchants.router import router as merchant_router
 from app.users.router import router as user_router
@@ -13,13 +15,11 @@ from app.users.router import router as user_router
 async def lifespan(app: FastAPI):
     # Run migrations at startup
     run_migrations()
-    app.state.database_connection = "Database connected"
 
     # Application runs
     yield
 
     # Cleanup actions at shutdown
-    app.state.database_connection = "Database disconnected"
     print("App is shutting down...")
 
 
@@ -42,6 +42,7 @@ app = FastAPI(
 )
 app.include_router(merchant_router)
 app.include_router(user_router)
+app.include_router(auth_router)
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -54,8 +55,3 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
-
-
-@app.get("/status")
-def status_check():
-    return {"status": app.state.database_connection}

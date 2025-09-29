@@ -10,3 +10,13 @@ class MerchantCategoryEnum(str, enum.Enum):
     ConvenienceStore = "ConvenienceStore"
 
     __pg_name__ = "merchant_category_enum"
+
+
+class ItemProductCategoryEnum(str, enum.Enum):
+    Beverage = "Beverage"
+    Food = "Food"
+    Snack = "Snack"
+    Condiments = "Condiments"
+    Additions = "Additions"
+
+    __pg_name__ = "item_product_category_enum"

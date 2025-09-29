@@ -1,13 +1,14 @@
 from typing import Optional
+
 from fastapi.param_functions import Depends
-from sqlalchemy import select, or_, func
-from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2 import functions as geofunc
+from sqlalchemy import func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_session
 
-from .models import Merchant, Item
 from .enums import MerchantCategoryEnum
+from .models import Item, Merchant
 
 
 class MerchantRepository:

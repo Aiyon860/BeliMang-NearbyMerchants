@@ -1,21 +1,20 @@
 from typing import Optional
 
-from fastapi import HTTPException, status, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends, HTTPException, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.service import decode_access_token
+from .utils import decode_access_token
+from app.dependencies import get_session
 from app.users.models import User
-
-from app.database import asyncSessionLocal
 
 bearer_scheme = HTTPBearer(auto_error=False)  # Handle errors ourselves
 
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
-    session: AsyncSession = Depends(asyncSessionLocal),
+    credentials: Optional[HTTPAuthorizationCredentials] = Security(bearer_scheme),
+    session: AsyncSession = Depends(get_session),
 ):
     if (
         credentials is None

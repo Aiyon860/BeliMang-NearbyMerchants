@@ -1,30 +1,29 @@
-from datetime import datetime, timedelta
-from typing import Optional
-
+from argon2 import PasswordHasher
 from fastapi import HTTPException, status
-from jose import JWTError, jwt
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import Settings
+from app.auth.repository import AuthRepository
+from app.auth.schemas import LoginRequest, TokenResponse
+from app.auth.utils import create_access_token
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day by default
-ALGORITHM = "HS256"
-SECRET_KEY = Settings.secret_key
-
-
-def create_access_token(subject: str, expires_minutes: Optional[int] = None) -> str:
-    expire = datetime.now() + timedelta(
-        minutes=(expires_minutes or ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    to_encode = {"sub": subject, "exp": expire}
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+pwd_context = PasswordHasher()
 
 
-def decode_access_token(token: str) -> dict:
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
+class AuthService:
+    @staticmethod
+    async def login(session: AsyncSession, data: LoginRequest) -> TokenResponse:
+        user = await AuthRepository.get_user_by_username(session, data.username)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+            )
+
+        try:
+            pwd_context.verify(user.password_hash, data.password)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+            )
+
+        token = create_access_token(subject=str(user.id))
+        return TokenResponse(access_token=token)

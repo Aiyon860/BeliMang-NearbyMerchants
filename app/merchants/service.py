@@ -1,13 +1,14 @@
 from typing import Optional
+
 from fastapi import HTTPException
 
-from .repository import MerchantRepository
 from .enums import MerchantCategoryEnum
+from .repository import MerchantRepository
 from .schemas import (
     DetailMerchantResponse,
+    ItemResponse,
     LocationSchema,
     MerchantResponse,
-    ItemResponse,
 )
 
 
@@ -38,7 +39,7 @@ class MerchantService:
             return {"data": [], "meta": {"limit": limit, "offset": offset, "total": 0}}
 
         merchants = await MerchantRepository.get_nearby_merchants(
-            session, lat, long, merchantId, merchantCategory, name, limit, offset
+            lat, long, merchantId, merchantCategory, name, limit, offset, session
         )
 
         # Format response

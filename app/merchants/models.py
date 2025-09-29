@@ -1,22 +1,23 @@
+import uuid
 from datetime import datetime
 from typing import List
-import uuid
 
 from geoalchemy2 import Geography
 from sqlalchemy import (
     UUID,
-    Integer,
-    String,
-    Float,
     DateTime,
     Enum,
-    func,
+    Float,
     ForeignKey,
+    Integer,
+    String,
+    func,
 )
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-from .enums import MerchantCategoryEnum
+
+from .enums import ItemProductCategoryEnum, MerchantCategoryEnum
 
 
 class Merchant(Base):
@@ -55,7 +56,18 @@ class Item(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    product_category: Mapped[str] = mapped_column(
+        Enum(
+            ItemProductCategoryEnum,
+            name=ItemProductCategoryEnum.__pg_name__,
+        ),
+        nullable=False,
+    )
     price: Mapped[int] = mapped_column(Integer, nullable=False)
+    image_url: Mapped[str] = mapped_column(String(1024), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
     merchant: Mapped["Merchant"] = relationship(
         "Merchant", back_populates="items", primaryjoin="Item.merchant_id==Merchant.id"
