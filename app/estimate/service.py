@@ -34,7 +34,7 @@ class EstimateService:
     def _bbox_area_cartesian_m2(points: List[Tuple[float, float]]) -> float:
         """
         Approx area of bounding box on local Cartesian approximation around center latitude.
-        points: list of (lat, lon)
+        points: list of (lat, long)
         """
         lats = [p[0] for p in points]
         longs = [p[1] for p in points]
@@ -55,7 +55,7 @@ class EstimateService:
         start_idx: int, coords: List[Tuple[float, float]]
     ) -> float:
         """
-        coords: list of (lat, lon) for all merchants + last point = user location
+        coords: list of (lat, long) for all merchants + last point = user location
         start_idx: index merchant that is starting point
         We will always finish at the last index (user).
         Route: start -> visit all other merchants -> user

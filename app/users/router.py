@@ -51,9 +51,9 @@ async def place_order(
     status_code=status.HTTP_200_OK,
 )
 async def get_user_orders(
+    merchantId: Optional[str] = Query(None),
     limit: int = Query(5, ge=0),
     offset: int = Query(0, ge=0),
-    merchantId: Optional[str] = Query(None),
     name: Optional[str] = Query(None),
     merchantCategory: Optional[MerchantCategoryEnum] = Query(None),
     session: AsyncSession = Depends(get_session),

@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from fastapi import HTTPException
 from pydantic import HttpUrl
@@ -31,6 +32,16 @@ class MerchantService:
             long = float(long)
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid latitude or longitude")
+
+        # Validate UUID format
+        if merchantId:
+            try:
+                UUID(merchantId)
+            except ValueError:
+                return {
+                    "data": [],
+                    "meta": {"limit": limit, "offset": offset, "total": 0},
+                }
 
         # Validate category
         if (

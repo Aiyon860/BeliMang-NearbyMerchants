@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from typing import Optional
+from uuid import UUID
 
 from fastapi import HTTPException, status
 from pydantic import HttpUrl
@@ -53,23 +54,23 @@ class OrderService:
         offset: int = 0,
     ):
         if merchantId:
+            # Validate UUID format
+            try:
+                UUID(merchantId)
+            except ValueError:
+                return []
+
             m = await MerchantRepository.get_merchant_by_id(session, merchantId)
             # Validate merchantId
             if not m:
-                return {
-                    "data": [],
-                    "meta": {"limit": limit, "offset": offset, "total": 0},
-                }
+                return []
 
             # Validate category
             if (
                 merchantCategory
                 and merchantCategory not in MerchantCategoryEnum.__members__
             ):
-                return {
-                    "data": [],
-                    "meta": {"limit": limit, "offset": offset, "total": 0},
-                }
+                return []
 
         # Fetch orders
         orders: Sequence[Order] = await OrderRepository.fetch_orders_for_user(
@@ -82,6 +83,8 @@ class OrderService:
             offset=offset,
         )
 
+        pattern_lower = name.casefold() if name else None
+
         # Format response
         data = []
         for ord in orders:
@@ -90,6 +93,25 @@ class OrderService:
             for oi in ord.order_items:
                 item = oi.item
                 merchant = item.merchant
+
+                # Filter by merchantId
+                if merchantId and str(merchantId) != str(merchant.id):
+                    continue
+
+                # Filter by merchantCategory
+                if merchantCategory and merchantCategory != merchant.merchant_category:
+                    continue
+
+                # Filter by merchant or item name
+                if pattern_lower:
+                    merchant_name_cf = merchant.name.casefold()
+                    item_name_cf = item.name.casefold()
+                    if (
+                        pattern_lower not in merchant_name_cf
+                        and pattern_lower not in item_name_cf
+                    ):
+                        continue
+
                 mid = str(merchant.id)
                 if mid not in merchant_map:
                     merchant_map[mid] = MerchantResponse(
